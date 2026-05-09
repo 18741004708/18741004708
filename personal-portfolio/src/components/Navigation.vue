@@ -1,18 +1,19 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
-import { gsap } from 'gsap'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const isScrolled = ref(false)
 const isMobileMenuOpen = ref(false)
 const activeSection = ref('hero')
 
 const navItems = [
-  { id: 'hero', label: 'Home' },
-  { id: 'about', label: 'About' },
-  { id: 'skills', label: 'Skills' },
-  { id: 'projects', label: 'Projects' },
-  { id: 'experience', label: 'Experience' },
-  { id: 'contact', label: 'Contact' }
+  { id: 'hero', labelKey: 'nav.home' },
+  { id: 'about', labelKey: 'nav.about' },
+  { id: 'skills', labelKey: 'nav.skills' },
+  { id: 'projects', labelKey: 'nav.projects' },
+  { id: 'experience', labelKey: 'nav.experience' },
+  { id: 'contact', labelKey: 'nav.contact' }
 ]
 
 const scrollToSection = (id) => {
@@ -23,26 +24,33 @@ const scrollToSection = (id) => {
   }
 }
 
+let ticking = false
 const handleScroll = () => {
-  isScrolled.value = window.scrollY > 50
-  
-  const sections = navItems.map(item => document.getElementById(item.id))
-  const scrollPosition = window.scrollY + window.innerHeight / 3
-  
-  sections.forEach((section, index) => {
-    if (section) {
-      const sectionTop = section.offsetTop
-      const sectionBottom = sectionTop + section.offsetHeight
+  if (!ticking) {
+    requestAnimationFrame(() => {
+      isScrolled.value = window.scrollY > 50
       
-      if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
-        activeSection.value = navItems[index].id
-      }
-    }
-  })
+      const sections = navItems.map(item => document.getElementById(item.id))
+      const scrollPosition = window.scrollY + window.innerHeight / 3
+      
+      sections.forEach((section, index) => {
+        if (section) {
+          const sectionTop = section.offsetTop
+          const sectionBottom = sectionTop + section.offsetHeight
+          
+          if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
+            activeSection.value = navItems[index].id
+          }
+        }
+      })
+      ticking = false
+    })
+    ticking = true
+  }
 }
 
 onMounted(() => {
-  window.addEventListener('scroll', handleScroll)
+  window.addEventListener('scroll', handleScroll, { passive: true })
   handleScroll()
 })
 
@@ -66,7 +74,7 @@ onUnmounted(() => {
           :class="{ active: activeSection === item.id }"
           @click="scrollToSection(item.id)"
         >
-          {{ item.label }}
+          {{ t(item.labelKey) }}
           <span class="nav-indicator"></span>
         </button>
       </div>

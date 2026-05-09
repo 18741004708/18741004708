@@ -1,14 +1,37 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { gsap } from 'gsap'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const heroRef = ref(null)
 const leftEyeRef = ref(null)
 const rightEyeRef = ref(null)
 const characterRef = ref(null)
 
-const mouseX = ref(0)
-const mouseY = ref(0)
+let mouseX = 0
+let mouseY = 0
+let targetEyeX = 0
+let targetEyeY = 0
+let currentEyeX = 0
+let currentEyeY = 0
+let rafId = null
+
+const lerp = (start, end, factor) => start + (end - start) * factor
+
+const updateEyes = () => {
+  currentEyeX = lerp(currentEyeX, targetEyeX, 0.1)
+  currentEyeY = lerp(currentEyeY, targetEyeY, 0.1)
+  
+  if (leftEyeRef.value) {
+    leftEyeRef.value.style.transform = `translate(${currentEyeX}px, ${currentEyeY}px)`
+  }
+  if (rightEyeRef.value) {
+    rightEyeRef.value.style.transform = `translate(${currentEyeX}px, ${currentEyeY}px)`
+  }
+  
+  rafId = requestAnimationFrame(updateEyes)
+}
 
 const handleMouseMove = (e) => {
   if (!heroRef.value) return
@@ -17,54 +40,27 @@ const handleMouseMove = (e) => {
   const centerX = rect.left + rect.width / 2
   const centerY = rect.top + rect.height / 2
   
-  mouseX.value = e.clientX - centerX
-  mouseY.value = e.clientY - centerY
+  mouseX = e.clientX - centerX
+  mouseY = e.clientY - centerY
   
-  updateEyes()
-  updateCharacter()
-}
-
-const updateEyes = () => {
-  const maxMove = 8
-  const angle = Math.atan2(mouseY.value, mouseX.value)
-  const distance = Math.min(Math.sqrt(mouseX.value ** 2 + mouseY.value ** 2) / 20, maxMove)
+  const maxMove = 6
+  const angle = Math.atan2(mouseY, mouseX)
+  const distance = Math.min(Math.sqrt(mouseX ** 2 + mouseY ** 2) / 30, maxMove)
   
-  const eyeX = Math.cos(angle) * distance
-  const eyeY = Math.sin(angle) * distance
+  targetEyeX = Math.cos(angle) * distance
+  targetEyeY = Math.sin(angle) * distance
   
-  if (leftEyeRef.value) {
-    gsap.to(leftEyeRef.value, {
-      x: eyeX,
-      y: eyeY,
-      duration: 0.1
-    })
+  if (characterRef.value) {
+    const maxTilt = 3
+    const tiltX = (mouseY / window.innerHeight) * maxTilt
+    const tiltY = -(mouseX / window.innerWidth) * maxTilt
+    characterRef.value.style.transform = `rotateX(${tiltX}deg) rotateY(${tiltY}deg)`
   }
-  
-  if (rightEyeRef.value) {
-    gsap.to(rightEyeRef.value, {
-      x: eyeX,
-      y: eyeY,
-      duration: 0.1
-    })
-  }
-}
-
-const updateCharacter = () => {
-  if (!characterRef.value) return
-  
-  const maxTilt = 5
-  const tiltX = (mouseY.value / window.innerHeight) * maxTilt
-  const tiltY = -(mouseX.value / window.innerWidth) * maxTilt
-  
-  gsap.to(characterRef.value, {
-    rotateX: tiltX,
-    rotateY: tiltY,
-    duration: 0.3
-  })
 }
 
 onMounted(() => {
-  window.addEventListener('mousemove', handleMouseMove)
+  window.addEventListener('mousemove', handleMouseMove, { passive: true })
+  rafId = requestAnimationFrame(updateEyes)
   
   gsap.fromTo('.hero-content', 
     { opacity: 0, y: 50 },
@@ -79,6 +75,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener('mousemove', handleMouseMove)
+  if (rafId) cancelAnimationFrame(rafId)
 })
 </script>
 
@@ -88,42 +85,40 @@ onUnmounted(() => {
       <div class="hero-content">
         <div class="hero-badge">
           <span class="badge-dot"></span>
-          Available for work
+          {{ t('hero.badge') }}
         </div>
         
         <h1 class="hero-title">
-          <span class="title-line">Hi, I'm a</span>
-          <span class="title-highlight">Software Developer</span>
+          <span class="title-line">{{ t('hero.greeting') }}</span>
+          <span class="title-highlight">{{ t('hero.title') }}</span>
         </h1>
         
         <p class="hero-description">
-          I craft digital experiences with clean code and creative solutions. 
-          Specializing in full-stack development, I bring ideas to life through 
-          elegant and efficient software.
+          {{ t('hero.description') }}
         </p>
         
         <div class="hero-actions">
-          <button class="btn btn-primary" @click="$emit('scrollTo', 'projects')">
-            View My Work
+          <button class="btn btn-primary clickable" onclick="document.getElementById('projects').scrollIntoView({behavior: 'smooth'})">
+            {{ t('hero.viewWork') }}
             <span class="btn-arrow">-></span>
           </button>
-          <button class="btn btn-secondary" @click="$emit('scrollTo', 'contact')">
-            Get In Touch
+          <button class="btn btn-secondary clickable" onclick="document.getElementById('contact').scrollIntoView({behavior: 'smooth'})">
+            {{ t('hero.getInTouch') }}
           </button>
         </div>
         
         <div class="hero-stats">
           <div class="stat">
             <span class="stat-number">5+</span>
-            <span class="stat-label">Years Experience</span>
+            <span class="stat-label">{{ t('hero.yearsExperience') }}</span>
           </div>
           <div class="stat">
             <span class="stat-number">50+</span>
-            <span class="stat-label">Projects Completed</span>
+            <span class="stat-label">{{ t('hero.projectsCompleted') }}</span>
           </div>
           <div class="stat">
             <span class="stat-number">30+</span>
-            <span class="stat-label">Happy Clients</span>
+            <span class="stat-label">{{ t('hero.happyClients') }}</span>
           </div>
         </div>
       </div>
@@ -168,7 +163,7 @@ onUnmounted(() => {
       <div class="mouse">
         <div class="wheel"></div>
       </div>
-      <span>Scroll to explore</span>
+      <span>{{ t('hero.scrollExplore') }}</span>
     </div>
   </section>
 </template>
@@ -315,6 +310,7 @@ onUnmounted(() => {
 
 .hero-character {
   perspective: 1000px;
+  transition: transform 0.1s ease-out;
 }
 
 .character-container {
@@ -369,6 +365,7 @@ onUnmounted(() => {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  will-change: transform;
 }
 
 .pupil::after {

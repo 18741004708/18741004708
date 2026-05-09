@@ -2,39 +2,42 @@
 import { ref, onMounted } from 'vue'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useI18n } from 'vue-i18n'
 
 gsap.registerPlugin(ScrollTrigger)
+const { t } = useI18n()
 
 const sectionRef = ref(null)
 
 const experiences = [
   {
     year: '2023 - Present',
-    title: 'Senior Full Stack Developer',
-    company: 'Tech Innovation Inc.',
-    description: 'Leading development of enterprise applications, mentoring junior developers, and architecting scalable solutions.',
-    highlights: ['Led team of 5 developers', 'Reduced deployment time by 60%', 'Implemented CI/CD pipelines']
+    yearKey: 'experience.present',
+    titleKey: 'experience.job1Title',
+    companyKey: 'experience.job1Company',
+    descKey: 'experience.job1Desc',
+    highlights: ['job1Highlight1', 'job1Highlight2', 'job1Highlight3']
   },
   {
     year: '2021 - 2023',
-    title: 'Full Stack Developer',
-    company: 'Digital Solutions Co.',
-    description: 'Developed and maintained multiple client projects using modern JavaScript frameworks and cloud technologies.',
-    highlights: ['Delivered 15+ projects', 'Improved performance by 40%', 'Built reusable component library']
+    titleKey: 'experience.job2Title',
+    companyKey: 'experience.job2Company',
+    descKey: 'experience.job2Desc',
+    highlights: ['job2Highlight1', 'job2Highlight2', 'job2Highlight3']
   },
   {
     year: '2019 - 2021',
-    title: 'Frontend Developer',
-    company: 'Creative Agency',
-    description: 'Created responsive web applications and interactive user interfaces for various clients across industries.',
-    highlights: ['Built 20+ websites', 'Expert in Vue.js & React', 'Mobile-first approach']
+    titleKey: 'experience.job3Title',
+    companyKey: 'experience.job3Company',
+    descKey: 'experience.job3Desc',
+    highlights: ['job3Highlight1', 'job3Highlight2', 'job3Highlight3']
   },
   {
     year: '2018 - 2019',
-    title: 'Junior Developer',
-    company: 'StartUp Hub',
-    description: 'Started my professional journey working on web applications and learning best practices in software development.',
-    highlights: ['Learned agile methodologies', 'First production deployments', 'Team collaboration skills']
+    titleKey: 'experience.job4Title',
+    companyKey: 'experience.job4Company',
+    descKey: 'experience.job4Desc',
+    highlights: ['job4Highlight1', 'job4Highlight2', 'job4Highlight3']
   }
 ]
 
@@ -60,8 +63,8 @@ onMounted(() => {
   <section id="experience" class="experience-section section" ref="sectionRef">
     <div class="container">
       <div class="section-header">
-        <h2 class="section-title">Experience</h2>
-        <p class="section-subtitle">My professional journey</p>
+        <h2 class="section-title">{{ t('experience.title') }}</h2>
+        <p class="section-subtitle">{{ t('experience.subtitle') }}</p>
       </div>
       
       <div class="timeline">
@@ -78,13 +81,13 @@ onMounted(() => {
           
           <div class="timeline-content">
             <div class="timeline-year">{{ exp.year }}</div>
-            <h3 class="timeline-title">{{ exp.title }}</h3>
-            <div class="timeline-company">{{ exp.company }}</div>
-            <p class="timeline-description">{{ exp.description }}</p>
+            <h3 class="timeline-title">{{ t(exp.titleKey) }}</h3>
+            <div class="timeline-company">{{ t(exp.companyKey) }}</div>
+            <p class="timeline-description">{{ t(exp.descKey) }}</p>
             
             <ul class="timeline-highlights">
-              <li v-for="(highlight, i) in exp.highlights" :key="i">
-                {{ highlight }}
+              <li v-for="highlight in exp.highlights" :key="highlight">
+                {{ t(`experience.${highlight}`) }}
               </li>
             </ul>
           </div>

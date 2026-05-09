@@ -2,14 +2,16 @@
 import { ref, onMounted } from 'vue'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useI18n } from 'vue-i18n'
 
 gsap.registerPlugin(ScrollTrigger)
+const { t } = useI18n()
 
 const sectionRef = ref(null)
 
 const skillCategories = [
   {
-    title: 'Frontend',
+    titleKey: 'skills.frontend',
     icon: 'M4 6h16M4 12h16M4 18h16',
     skills: [
       { name: 'Vue.js / React', level: 95 },
@@ -19,7 +21,7 @@ const skillCategories = [
     ]
   },
   {
-    title: 'Backend',
+    titleKey: 'skills.backend',
     icon: 'M5 12h14M12 5l7 7-7 7',
     skills: [
       { name: 'Node.js', level: 90 },
@@ -29,7 +31,7 @@ const skillCategories = [
     ]
   },
   {
-    title: 'DevOps & Tools',
+    titleKey: 'skills.devops',
     icon: 'M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5',
     skills: [
       { name: 'Git / GitHub', level: 95 },
@@ -62,14 +64,14 @@ onMounted(() => {
   <section id="skills" class="skills-section section" ref="sectionRef">
     <div class="container">
       <div class="section-header">
-        <h2 class="section-title">Skills & Expertise</h2>
-        <p class="section-subtitle">Technologies I work with</p>
+        <h2 class="section-title">{{ t('skills.title') }}</h2>
+        <p class="section-subtitle">{{ t('skills.subtitle') }}</p>
       </div>
       
       <div class="skills-grid">
         <div 
           v-for="(category, index) in skillCategories" 
-          :key="category.title"
+          :key="category.titleKey"
           class="skill-category"
           :style="{ animationDelay: `${index * 0.1}s` }"
         >
@@ -79,7 +81,7 @@ onMounted(() => {
                 <path :d="category.icon"/>
               </svg>
             </div>
-            <h3 class="category-title">{{ category.title }}</h3>
+            <h3 class="category-title">{{ t(category.titleKey) }}</h3>
           </div>
           
           <div class="skills-list">
@@ -102,12 +104,6 @@ onMounted(() => {
           </div>
         </div>
       </div>
-      
-      <div class="tech-icons">
-        <div class="tech-icon" v-for="i in 8" :key="i">
-          <div class="icon-placeholder"></div>
-        </div>
-      </div>
     </div>
   </section>
 </template>
@@ -126,7 +122,6 @@ onMounted(() => {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 30px;
-  margin-bottom: 60px;
 }
 
 .skill-category {
@@ -213,59 +208,6 @@ onMounted(() => {
   border-radius: 3px;
   transition: width 1s ease;
   position: relative;
-}
-
-.skill-progress::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.3),
-    transparent
-  );
-  animation: shimmer 2s infinite;
-}
-
-@keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
-
-.tech-icons {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-
-.tech-icon {
-  width: 60px;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg-secondary);
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: all 0.3s ease;
-}
-
-.tech-icon:hover {
-  border-color: var(--accent-cyan);
-  transform: translateY(-5px);
-}
-
-.icon-placeholder {
-  width: 32px;
-  height: 32px;
-  background: var(--gradient-primary);
-  border-radius: 8px;
-  opacity: 0.5;
 }
 
 @media (max-width: 968px) {

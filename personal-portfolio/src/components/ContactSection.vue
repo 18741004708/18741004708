@@ -2,11 +2,12 @@
 import { ref, onMounted } from 'vue'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useI18n } from 'vue-i18n'
 
 gsap.registerPlugin(ScrollTrigger)
+const { t } = useI18n()
 
 const sectionRef = ref(null)
-const formRef = ref(null)
 const formData = ref({
   name: '',
   email: '',
@@ -40,20 +41,6 @@ const handleSubmit = () => {
   console.log('Form submitted:', formData.value)
 }
 
-const createRipple = (e) => {
-  const button = e.currentTarget
-  const ripple = document.createElement('span')
-  const rect = button.getBoundingClientRect()
-  
-  ripple.style.left = `${e.clientX - rect.left}px`
-  ripple.style.top = `${e.clientY - rect.top}px`
-  ripple.classList.add('ripple')
-  
-  button.appendChild(ripple)
-  
-  setTimeout(() => ripple.remove(), 600)
-}
-
 onMounted(() => {
   gsap.fromTo('.contact-content',
     { opacity: 0, y: 50 },
@@ -75,8 +62,8 @@ onMounted(() => {
   <section id="contact" class="contact-section section" ref="sectionRef">
     <div class="container">
       <div class="section-header">
-        <h2 class="section-title">Get In Touch</h2>
-        <p class="section-subtitle">Let's work together on your next project</p>
+        <h2 class="section-title">{{ t('contact.title') }}</h2>
+        <p class="section-subtitle">{{ t('contact.subtitle') }}</p>
       </div>
       
       <div class="contact-content">
@@ -89,8 +76,8 @@ onMounted(() => {
               </svg>
             </div>
             <div class="info-text">
-              <h4>Location</h4>
-              <p>Your City, Country</p>
+              <h4>{{ t('contact.location') }}</h4>
+              <p>{{ t('contact.locationValue') }}</p>
             </div>
           </div>
           
@@ -102,8 +89,8 @@ onMounted(() => {
               </svg>
             </div>
             <div class="info-text">
-              <h4>Email</h4>
-              <p>hello@example.com</p>
+              <h4>{{ t('contact.email') }}</h4>
+              <p>{{ t('contact.emailValue') }}</p>
             </div>
           </div>
           
@@ -112,51 +99,50 @@ onMounted(() => {
               v-for="social in socialLinks"
               :key="social.name"
               :href="social.url"
-              class="social-link"
+              class="social-link clickable"
               target="_blank"
-              @click="createRipple"
             >
               <svg viewBox="0 0 24 24" v-html="social.icon"></svg>
             </a>
           </div>
         </div>
         
-        <form class="contact-form" ref="formRef" @submit.prevent="handleSubmit">
+        <form class="contact-form" @submit.prevent="handleSubmit">
           <div class="form-group">
-            <label for="name">Name</label>
+            <label for="name">{{ t('contact.formName') }}</label>
             <input 
               type="text" 
               id="name" 
               v-model="formData.name"
-              placeholder="Your name"
+              :placeholder="t('contact.formNamePlaceholder')"
               required
             />
           </div>
           
           <div class="form-group">
-            <label for="email">Email</label>
+            <label for="email">{{ t('contact.formEmail') }}</label>
             <input 
               type="email" 
               id="email" 
               v-model="formData.email"
-              placeholder="your@email.com"
+              :placeholder="t('contact.formEmailPlaceholder')"
               required
             />
           </div>
           
           <div class="form-group">
-            <label for="message">Message</label>
+            <label for="message">{{ t('contact.formMessage') }}</label>
             <textarea 
               id="message" 
               v-model="formData.message"
-              placeholder="Tell me about your project..."
+              :placeholder="t('contact.formMessagePlaceholder')"
               rows="5"
               required
             ></textarea>
           </div>
           
-          <button type="submit" class="submit-btn" @click="createRipple">
-            Send Message
+          <button type="submit" class="submit-btn clickable">
+            {{ t('contact.sendMessage') }}
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="22" y1="2" x2="11" y2="13"/>
               <polygon points="22 2 15 22 11 13 2 9 22 2"/>
@@ -262,8 +248,6 @@ onMounted(() => {
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
 }
 
 .social-link:hover {
@@ -339,8 +323,6 @@ onMounted(() => {
   font-weight: 600;
   border-radius: 8px;
   transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
 }
 
 .submit-btn:hover {
@@ -351,22 +333,6 @@ onMounted(() => {
 .submit-btn svg {
   width: 18px;
   height: 18px;
-}
-
-.ripple {
-  position: absolute;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.4);
-  transform: scale(0);
-  animation: ripple-animation 0.6s linear;
-  pointer-events: none;
-}
-
-@keyframes ripple-animation {
-  to {
-    transform: scale(4);
-    opacity: 0;
-  }
 }
 
 @media (max-width: 768px) {

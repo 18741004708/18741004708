@@ -2,9 +2,10 @@
 import { ref, onMounted } from 'vue'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useI18n } from 'vue-i18n'
 
 gsap.registerPlugin(ScrollTrigger)
-
+const { t } = useI18n()
 const sectionRef = ref(null)
 
 onMounted(() => {
@@ -44,32 +45,16 @@ onMounted(() => {
   <section id="about" class="about-section section" ref="sectionRef">
     <div class="container">
       <div class="section-header">
-        <h2 class="section-title">About Me</h2>
-        <p class="section-subtitle">Get to know me and my journey</p>
+        <h2 class="section-title">{{ t('about.title') }}</h2>
+        <p class="section-subtitle">{{ t('about.subtitle') }}</p>
       </div>
       
       <div class="about-grid">
         <div class="about-content">
           <div class="about-text">
-            <p class="about-intro">
-              I'm a passionate software developer with over 5 years of experience 
-              building digital products that make a difference. My journey started 
-              with curiosity about how things work, and evolved into a career 
-              dedicated to creating elegant solutions.
-            </p>
-            
-            <p>
-              I specialize in full-stack development, with expertise in modern 
-              JavaScript frameworks, backend technologies, and cloud infrastructure. 
-              I believe in writing clean, maintainable code and creating intuitive 
-              user experiences.
-            </p>
-            
-            <p>
-              When I'm not coding, you'll find me exploring new technologies, 
-              contributing to open-source projects, or sharing knowledge through 
-              technical writing and mentoring.
-            </p>
+            <p class="about-intro">{{ t('about.intro') }}</p>
+            <p>{{ t('about.paragraph1') }}</p>
+            <p>{{ t('about.paragraph2') }}</p>
           </div>
           
           <div class="about-highlights">
@@ -80,8 +65,8 @@ onMounted(() => {
                 </svg>
               </div>
               <div class="highlight-text">
-                <h4>Full-Stack Development</h4>
-                <p>End-to-end solutions from frontend to backend</p>
+                <h4>{{ t('about.fullStack') }}</h4>
+                <p>{{ t('about.fullStackDesc') }}</p>
               </div>
             </div>
             
@@ -93,8 +78,8 @@ onMounted(() => {
                 </svg>
               </div>
               <div class="highlight-text">
-                <h4>Fast Delivery</h4>
-                <p>Efficient workflows with quality results</p>
+                <h4>{{ t('about.fastDelivery') }}</h4>
+                <p>{{ t('about.fastDeliveryDesc') }}</p>
               </div>
             </div>
             
@@ -107,8 +92,8 @@ onMounted(() => {
                 </svg>
               </div>
               <div class="highlight-text">
-                <h4>Collaborative</h4>
-                <p>Strong communication and teamwork skills</p>
+                <h4>{{ t('about.collaborative') }}</h4>
+                <p>{{ t('about.collaborativeDesc') }}</p>
               </div>
             </div>
           </div>

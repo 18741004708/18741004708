@@ -2,6 +2,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useI18n } from 'vue-i18n'
 import ParticleBackground from './components/ParticleBackground.vue'
 import CustomCursor from './components/CustomCursor.vue'
 import Navigation from './components/Navigation.vue'
@@ -12,9 +13,11 @@ import ProjectsSection from './components/ProjectsSection.vue'
 import ExperienceSection from './components/ExperienceSection.vue'
 import ContactSection from './components/ContactSection.vue'
 import LoadingScreen from './components/LoadingScreen.vue'
+import LanguageSwitch from './components/LanguageSwitch.vue'
 
 gsap.registerPlugin(ScrollTrigger)
 
+const { t } = useI18n()
 const isLoading = ref(true)
 const showContent = ref(false)
 
@@ -41,6 +44,7 @@ onUnmounted(() => {
     <CustomCursor />
     <ParticleBackground />
     <Navigation />
+    <LanguageSwitch />
     
     <main>
       <HeroSection />
@@ -53,7 +57,7 @@ onUnmounted(() => {
     
     <footer class="footer">
       <div class="container">
-        <p>&copy; 2024 Developer Portfolio. All rights reserved.</p>
+        <p>&copy; {{ t('footer.copyright') }}</p>
       </div>
     </footer>
   </div>

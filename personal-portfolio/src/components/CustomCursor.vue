@@ -5,10 +5,34 @@ const cursorX = ref(0)
 const cursorY = ref(0)
 const isHovering = ref(false)
 const isClicking = ref(false)
+const isVisible = ref(false)
+
+let rafId = null
+let targetX = 0
+let targetY = 0
+let currentX = 0
+let currentY = 0
+
+const lerp = (start, end, factor) => start + (end - start) * factor
+
+const updateCursor = () => {
+  currentX = lerp(currentX, targetX, 0.15)
+  currentY = lerp(currentY, targetY, 0.15)
+  
+  cursorX.value = currentX
+  cursorY.value = currentY
+  
+  rafId = requestAnimationFrame(updateCursor)
+}
 
 const handleMouseMove = (e) => {
-  cursorX.value = e.clientX
-  cursorY.value = e.clientY
+  targetX = e.clientX
+  targetY = e.clientY
+  if (!isVisible.value) {
+    isVisible.value = true
+    currentX = targetX
+    currentY = targetY
+  }
 }
 
 const handleMouseDown = () => {
@@ -27,23 +51,37 @@ const handleMouseOver = (e) => {
   }
 }
 
+const handleMouseLeave = () => {
+  isVisible.value = false
+}
+
 onMounted(() => {
-  document.addEventListener('mousemove', handleMouseMove)
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0
+  if (isTouchDevice) return
+  
+  document.addEventListener('mousemove', handleMouseMove, { passive: true })
   document.addEventListener('mousedown', handleMouseDown)
   document.addEventListener('mouseup', handleMouseUp)
   document.addEventListener('mouseover', handleMouseOver)
+  document.addEventListener('mouseleave', handleMouseLeave)
+  
+  rafId = requestAnimationFrame(updateCursor)
 })
 
 onUnmounted(() => {
+  if (rafId) {
+    cancelAnimationFrame(rafId)
+  }
   document.removeEventListener('mousemove', handleMouseMove)
   document.removeEventListener('mousedown', handleMouseDown)
   document.removeEventListener('mouseup', handleMouseUp)
   document.removeEventListener('mouseover', handleMouseOver)
+  document.removeEventListener('mouseleave', handleMouseLeave)
 })
 </script>
 
 <template>
-  <div class="custom-cursor">
+  <div class="custom-cursor" v-show="isVisible">
     <div 
       class="cursor-dot"
       :style="{ 
@@ -58,16 +96,6 @@ onUnmounted(() => {
       :style="{ 
         left: `${cursorX}px`, 
         top: `${cursorY}px`
-      }"
-    ></div>
-    <div 
-      class="cursor-trail"
-      v-for="i in 5"
-      :key="i"
-      :style="{ 
-        left: `${cursorX}px`, 
-        top: `${cursorY}px`,
-        animationDelay: `${i * 0.05}s`
       }"
     ></div>
   </div>
@@ -89,6 +117,7 @@ onUnmounted(() => {
   border-radius: 50%;
   transition: transform 0.1s ease;
   box-shadow: 0 0 10px var(--accent-cyan);
+  will-change: transform, left, top;
 }
 
 .cursor-ring {
@@ -98,8 +127,9 @@ onUnmounted(() => {
   border: 2px solid var(--accent-cyan);
   border-radius: 50%;
   transform: translate(-50%, -50%);
-  transition: all 0.15s ease;
+  transition: width 0.2s ease, height 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
   opacity: 0.5;
+  will-change: transform, left, top;
 }
 
 .cursor-ring.hovering {
@@ -115,29 +145,7 @@ onUnmounted(() => {
   opacity: 1;
 }
 
-.cursor-trail {
-  position: absolute;
-  width: 4px;
-  height: 4px;
-  background: var(--accent-green);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  opacity: 0;
-  animation: trail 0.5s ease forwards;
-}
-
-@keyframes trail {
-  0% {
-    opacity: 0.8;
-    transform: translate(-50%, -50%) scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0);
-  }
-}
-
-@media (max-width: 768px) {
+@media (max-width: 768px), (hover: none) {
   .custom-cursor {
     display: none;
   }

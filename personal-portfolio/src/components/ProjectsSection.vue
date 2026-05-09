@@ -2,8 +2,10 @@
 import { ref, onMounted } from 'vue'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useI18n } from 'vue-i18n'
 
 gsap.registerPlugin(ScrollTrigger)
+const { t } = useI18n()
 
 const sectionRef = ref(null)
 const activeFilter = ref('all')
@@ -13,8 +15,8 @@ const filters = ['all', 'web', 'mobile', 'backend']
 const projects = [
   {
     id: 1,
-    title: 'E-Commerce Platform',
-    description: 'A full-featured online shopping platform with real-time inventory, payment processing, and admin dashboard.',
+    titleKey: 'projects.project1Title',
+    descKey: 'projects.project1Desc',
     image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=modern%20e-commerce%20website%20dashboard%20interface%20clean%20design&image_size=landscape_16_9',
     tags: ['Vue.js', 'Node.js', 'MongoDB', 'Stripe'],
     category: 'web',
@@ -23,8 +25,8 @@ const projects = [
   },
   {
     id: 2,
-    title: 'Task Management App',
-    description: 'Collaborative task management application with real-time updates, drag-and-drop, and team features.',
+    titleKey: 'projects.project2Title',
+    descKey: 'projects.project2Desc',
     image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=task%20management%20app%20interface%20kanban%20board%20modern&image_size=landscape_16_9',
     tags: ['React', 'Firebase', 'Material-UI'],
     category: 'web',
@@ -33,8 +35,8 @@ const projects = [
   },
   {
     id: 3,
-    title: 'Fitness Tracking Mobile App',
-    description: 'Cross-platform mobile app for tracking workouts, nutrition, and health metrics with AI recommendations.',
+    titleKey: 'projects.project3Title',
+    descKey: 'projects.project3Desc',
     image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=fitness%20tracking%20mobile%20app%20interface%20dark%20theme&image_size=landscape_16_9',
     tags: ['React Native', 'Node.js', 'PostgreSQL'],
     category: 'mobile',
@@ -43,8 +45,8 @@ const projects = [
   },
   {
     id: 4,
-    title: 'API Gateway Service',
-    description: 'High-performance API gateway with rate limiting, authentication, and analytics for microservices.',
+    titleKey: 'projects.project4Title',
+    descKey: 'projects.project4Desc',
     image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=api%20architecture%20diagram%20microservices%20technical&image_size=landscape_16_9',
     tags: ['Node.js', 'Redis', 'Docker', 'Kubernetes'],
     category: 'backend',
@@ -53,8 +55,8 @@ const projects = [
   },
   {
     id: 5,
-    title: 'Real-time Chat Application',
-    description: 'Scalable chat platform with end-to-end encryption, file sharing, and video calling features.',
+    titleKey: 'projects.project5Title',
+    descKey: 'projects.project5Desc',
     image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=chat%20application%20interface%20modern%20messaging%20app&image_size=landscape_16_9',
     tags: ['Vue.js', 'Socket.io', 'WebRTC'],
     category: 'web',
@@ -63,8 +65,8 @@ const projects = [
   },
   {
     id: 6,
-    title: 'Data Analytics Dashboard',
-    description: 'Interactive dashboard for visualizing business metrics with real-time data streaming and custom reports.',
+    titleKey: 'projects.project6Title',
+    descKey: 'projects.project6Desc',
     image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=data%20analytics%20dashboard%20charts%20graphs%20modern%20ui&image_size=landscape_16_9',
     tags: ['React', 'D3.js', 'Python', 'FastAPI'],
     category: 'web',
@@ -81,35 +83,6 @@ const filterProjects = (filter) => {
     filteredProjects.value = projects
   } else {
     filteredProjects.value = projects.filter(p => p.category === filter)
-  }
-}
-
-const handleCardHover = (e, isEntering) => {
-  const card = e.currentTarget
-  const rect = card.getBoundingClientRect()
-  const x = e.clientX - rect.left
-  const y = e.clientY - rect.top
-  
-  const centerX = rect.width / 2
-  const centerY = rect.height / 2
-  
-  const rotateX = (y - centerY) / 10
-  const rotateY = (centerX - x) / 10
-  
-  if (isEntering) {
-    gsap.to(card, {
-      rotateX: -rotateX,
-      rotateY: rotateY,
-      duration: 0.3,
-      ease: 'power2.out'
-    })
-  } else {
-    gsap.to(card, {
-      rotateX: 0,
-      rotateY: 0,
-      duration: 0.5,
-      ease: 'elastic.out(1, 0.5)'
-    })
   }
 }
 
@@ -135,19 +108,19 @@ onMounted(() => {
   <section id="projects" class="projects-section section" ref="sectionRef">
     <div class="container">
       <div class="section-header">
-        <h2 class="section-title">Featured Projects</h2>
-        <p class="section-subtitle">Some of my recent work</p>
+        <h2 class="section-title">{{ t('projects.title') }}</h2>
+        <p class="section-subtitle">{{ t('projects.subtitle') }}</p>
       </div>
       
       <div class="filter-buttons">
         <button 
           v-for="filter in filters"
           :key="filter"
-          class="filter-btn"
+          class="filter-btn clickable"
           :class="{ active: activeFilter === filter }"
           @click="filterProjects(filter)"
         >
-          {{ filter.charAt(0).toUpperCase() + filter.slice(1) }}
+          {{ t(`projects.${filter}`) }}
         </button>
       </div>
       
@@ -156,11 +129,9 @@ onMounted(() => {
           v-for="project in filteredProjects"
           :key="project.id"
           class="project-card"
-          @mousemove="handleCardHover($event, true)"
-          @mouseleave="handleCardHover($event, false)"
         >
           <div class="card-image">
-            <img :src="project.image" :alt="project.title" loading="lazy" />
+            <img :src="project.image" :alt="t(project.titleKey)" loading="lazy" />
             <div class="card-overlay">
               <div class="overlay-content">
                 <a :href="project.link" class="overlay-btn" target="_blank">
@@ -169,21 +140,21 @@ onMounted(() => {
                     <polyline points="15 3 21 3 21 9"/>
                     <line x1="10" y1="14" x2="21" y2="3"/>
                   </svg>
-                  Live Demo
+                  {{ t('projects.liveDemo') }}
                 </a>
                 <a :href="project.github" class="overlay-btn" target="_blank">
                   <svg viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
                   </svg>
-                  Code
+                  {{ t('projects.code') }}
                 </a>
               </div>
             </div>
           </div>
           
           <div class="card-content">
-            <h3 class="card-title">{{ project.title }}</h3>
-            <p class="card-description">{{ project.description }}</p>
+            <h3 class="card-title">{{ t(project.titleKey) }}</h3>
+            <p class="card-description">{{ t(project.descKey) }}</p>
             <div class="card-tags">
               <span v-for="tag in project.tags" :key="tag" class="tag">{{ tag }}</span>
             </div>
@@ -256,12 +227,11 @@ onMounted(() => {
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.05);
   transition: all 0.3s ease;
-  transform-style: preserve-3d;
-  perspective: 1000px;
 }
 
 .project-card:hover {
   box-shadow: var(--shadow-glow);
+  transform: translateY(-5px);
 }
 
 .card-image {
